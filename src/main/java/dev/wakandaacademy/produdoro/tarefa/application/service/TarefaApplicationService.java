@@ -51,6 +51,6 @@ public class TarefaApplicationService implements TarefaService {
         usuario.tokenPertenceAoUsuario(usuarioPorEmail);
         List<Tarefa> tarefas = tarefaRepository.buscaTarefasDoUsuario(idUsuario);
         log.info("[finish] TarefaApplicationService - buscaTarefasDoUsuario");
-        return null;
+        return TarefaDoUsuarioListResponse.converte(tarefas);
     }
 }
