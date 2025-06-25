@@ -4,6 +4,7 @@ import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
+import dev.wakandaacademy.produdoro.tarefa.domain.StatusTarefa;
 import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
 import dev.wakandaacademy.produdoro.usuario.application.repository.UsuarioRepository;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
@@ -46,8 +47,12 @@ public class TarefaApplicationService implements TarefaService {
         log.info("[inicia] TarefaApplicationService - concluiTarefa");
         Usuario usuario = usuarioRepository.buscaUsuarioPorEmail(emailPorUsuario);
         Tarefa tarefa = detalhaTarefa(emailPorUsuario, idTarefa);
+            if (tarefa.getStatus().equals(StatusTarefa.CONCLUIDA)) {
+                throw APIException.build(HttpStatus.BAD_REQUEST, "Tarefa já está concluída");
+            }
         tarefa.mudaStatusParaConcluida(usuario);
         tarefaRepository.salva(tarefa);
         log.info("[finaliza] TarefaApplicationService - concluiTarefa");
     }
+
 }
