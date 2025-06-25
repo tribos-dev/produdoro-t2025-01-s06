@@ -21,7 +21,7 @@ public interface UsuarioAPI {
 	@PatchMapping(value = "/pausa-longa/{idUsuaio}")
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	void mudaStatusParaPausaLonga(@RequestHeader(name = "Authorization",
-			required = true) String token, @PathVariable UUID idUsario);
+			required = true) String token, @PathVariable UUID idUsuario);
 
 
 }
