@@ -44,7 +44,6 @@ public class Usuario {
 		this.configuracao = new ConfiguracaoUsuario(configuracaoPadrao);
 	}
 
-<<<<<<< feature/PROD-437-usuario-muda-status-para-pausa-longa
 	public void mudaStatusParaPausaLonga(UUID idUsuario) {
 		validaUsuario(idUsuario);
 		validaSeUsuarioJaEstaEmPausaLonga();
@@ -58,18 +57,10 @@ public class Usuario {
 		}
 	}
 
-	private void validaUsuario(UUID idUsuario) {
-		if (!this.idUsuario.equals(idUsuario)) {
-			throw APIException.build(HttpStatus.UNAUTHORIZED,
-					"credencial de autenticação não é válida");
-		}
-	}
-=======
     public void validaUsuario(UUID idUsuario) {
 		if (!this.idUsuario.equals(idUsuario)) {
 			throw APIException.build(HttpStatus.UNAUTHORIZED,
 					"Credencial de Autenticação não é valida");
 		}
     }
->>>>>>> dev
 }
