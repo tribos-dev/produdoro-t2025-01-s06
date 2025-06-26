@@ -2,6 +2,7 @@ package dev.wakandaacademy.produdoro.tarefa.application.api;
 
 import java.util.UUID;
 
+import dev.wakandaacademy.produdoro.usuario.application.service.UsuarioApplicationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,6 +19,8 @@ import lombok.extern.log4j.Log4j2;
 public class TarefaRestController implements TarefaAPI {
 	private final TarefaService tarefaService;
 	private final TokenService tokenService;
+	private final UsuarioApplicationService usuarioApplicationService;
+
 
 	public TarefaIdResponse postNovaTarefa(TarefaRequest tarefaRequest) {
 		log.info("[inicia]  TarefaRestController - postNovaTarefa  ");
@@ -33,6 +36,14 @@ public class TarefaRestController implements TarefaAPI {
 		Tarefa tarefa = tarefaService.detalhaTarefa(usuario,idTarefa);
 		log.info("[finaliza] TarefaRestController - detalhaTarefa");
 		return new TarefaDetalhadoResponse(tarefa);
+	}
+
+	@Override
+	public void mudaStatusParaPausaCurta(String token, UUID idUsuario) {
+		log.info("[inicia] TarefaRestController - mudaStatusParaPausaCurta");
+		String email = getUsuarioByToken(token);
+		usuarioApplicationService.mudaStatusParaPausaCurta(email, idUsuario);
+		log.info("[finaliza] TarefaRestController - mudaStatusParaPausaCurta");
 	}
 
 	private String getUsuarioByToken(String token) {
