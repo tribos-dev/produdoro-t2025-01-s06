@@ -2,6 +2,7 @@ package dev.wakandaacademy.produdoro.usuario.application.service;
 
 import javax.validation.Valid;
 
+import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
 import dev.wakandaacademy.produdoro.usuario.application.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
