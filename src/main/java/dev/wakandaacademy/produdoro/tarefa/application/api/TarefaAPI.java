@@ -1,5 +1,6 @@
 package dev.wakandaacademy.produdoro.tarefa.application.api;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.validation.Valid;
@@ -16,8 +17,19 @@ public interface TarefaAPI {
 
     @GetMapping("/{idTarefa}")
     @ResponseStatus(code = HttpStatus.OK)
-    TarefaDetalhadoResponse detalhaTarefa(@RequestHeader(name = "Authorization", required = true) String token,
-                                          @PathVariable UUID idTarefa);
+    TarefaDetalhadoResponse detalhaTarefa(@RequestHeader(name = "Authorization",required = true) String token, 
+    		@PathVariable UUID idTarefa);
+
+    @DeleteMapping("/deleta-todas_tarefas/{idUsuario}")
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    void deletaTodasTarefas (
+            @RequestHeader(name = "Authorization", required = true) String token,
+            @PathVariable UUID idUsuario);
+
+    @GetMapping("/{idUsuario}/lista-tarefas")
+    @ResponseStatus(code = HttpStatus.OK)
+    List<TarefaDoUsuarioListResponse> listaTarefasPeloUsuario(@RequestHeader(name = "Authorization",required = true)
+                                                              String token, @PathVariable UUID idUsuario);
 
     @PostMapping("/{idTarefa}/incrementa-pomodoro")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
