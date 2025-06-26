@@ -36,7 +36,7 @@ public class Usuario {
 	private StatusUsuario status = StatusUsuario.FOCO;
 	@Builder.Default
 	private Integer quantidadePomodorosPausaCurta = 0;
-	
+
 	public Usuario(UsuarioNovoRequest usuarioNovo, ConfiguracaoPadrao configuracaoPadrao) {
 		this.idUsuario = UUID.randomUUID();
 		this.email = usuarioNovo.getEmail();
@@ -50,4 +50,11 @@ public class Usuario {
 					"Credencial de Autenticação não é valida");
 		}
     }
+
+
+	public void tokenPertenceAoUsuario(Usuario usuarioPorEmail) {
+		if (!this.idUsuario.equals(usuarioPorEmail.getIdUsuario())) {
+			throw APIException.build(HttpStatus.UNAUTHORIZED, "Token Nao Corresponde ao Usuario!");
+		}
+	}
 }
