@@ -44,6 +44,26 @@ public class TarefaApplicationService implements TarefaService {
     }
 
     @Override
+    public void limparTodasTarefas(String usuario, UUID idUsuario) {
+        log.info("[inicia] TarefaApplicationService - limparTodasTarefas");
+        Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(usuario);
+        usuarioRepository.buscaUsuarioPorId(idUsuario);
+        if (!usuarioPorEmail.getIdUsuario().equals(idUsuario)) {
+            throw APIException.build(HttpStatus.UNAUTHORIZED,
+                    "Usuário não autorizado para requisição solicitada!");
+        }
+        usuarioPorEmail.validaUsuario(idUsuario);
+        List<Tarefa> tarefas = tarefaRepository.buscaTarefasDoUsuario(idUsuario);
+        if (tarefas.isEmpty())
+            throw APIException.build(HttpStatus.CONFLICT,
+                    "Usuário não possui tarefas cadastradas!");
+        if (tarefas.size() >= 2)
+            tarefaRepository.deletaTodasAsTarefasDoUsuario(idUsuario);
+        log.info("[finaliza] TarefaApplicationService - limparTodasTarefas");
+
+    }
+
+    @Override
     public List<TarefaDoUsuarioListResponse> buscaTarefasDoUsuario(String emailUsuario, UUID idUsuario) {
         log.info("[start] TarefaApplicationService - buscaTarefasDoUsuario");
         Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(emailUsuario);

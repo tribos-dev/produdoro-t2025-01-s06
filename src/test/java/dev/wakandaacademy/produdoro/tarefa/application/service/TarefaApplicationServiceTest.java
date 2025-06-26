@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.UUID;
 
 import dev.wakandaacademy.produdoro.DataHelper;
+import dev.wakandaacademy.produdoro.usuario.application.repository.UsuarioRepository;
+import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
+import dev.wakandaacademy.produdoro.DataHelper;
 import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.usuario.application.repository.UsuarioRepository;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
@@ -34,9 +37,11 @@ class TarefaApplicationServiceTest {
     //	@MockBean
     @Mock
     TarefaRepository tarefaRepository;
+
     //	@MockBean
     @Mock
     UsuarioRepository usuarioRepository;
+
 
     @Test
     void deveRetornarIdTarefaNovaCriada() {
@@ -50,6 +55,21 @@ class TarefaApplicationServiceTest {
         assertEquals(UUID.class, response.getIdTarefa().getClass());
     }
 
+    @Test
+    void deveDeletarTodasAsTarefasDoUsuario() {
+        Usuario usuario = DataHelper.createUsuario();
+        List<Tarefa> tarefas = DataHelper.createListTarefa();
+
+        when(usuarioRepository.buscaUsuarioPorEmail(usuario.getEmail())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefasDoUsuario(usuario.getIdUsuario())).thenReturn(tarefas);
+
+        tarefaApplicationService.limparTodasTarefas(usuario.getEmail(),
+                usuario.getIdUsuario());
+
+        verify(tarefaRepository, times(1)).deletaTodasAsTarefasDoUsuario(usuario.getIdUsuario());
+
+
+    }
 
     public TarefaRequest getTarefaRequest() {
         TarefaRequest request = new TarefaRequest("tarefa 1", UUID.randomUUID(), null, null, 0);
