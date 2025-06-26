@@ -4,6 +4,7 @@ import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
+import dev.wakandaacademy.produdoro.tarefa.domain.StatusAtivacaoTarefa;
 import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
 import dev.wakandaacademy.produdoro.usuario.application.repository.UsuarioRepository;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
@@ -40,4 +41,27 @@ public class TarefaApplicationService implements TarefaService {
         log.info("[finaliza] TarefaApplicationService - detalhaTarefa");
         return tarefa;
     }
+
+    @Override
+    public void ativaTarefa(String usuario, UUID idTarefa) {
+        log.info("[inicia] TarefaApplicationService - ativaTarefa");
+        Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(usuario);
+        log.info("[usuarioPorEmail] {}", usuarioPorEmail);
+        Tarefa tarefa = tarefaRepository.buscaTarefaPorId(idTarefa)
+                .orElseThrow(() -> APIException.build(HttpStatus.NOT_FOUND, "id da tarefa inválido"));
+        tarefa.pertenceAoUsuario(usuarioPorEmail);
+        tarefa.verficaSePodeSerAtiva();
+        tarefaRepository.inativaTarefa(usuarioPorEmail.getIdUsuario());
+        tarefa.ativaTarefa();
+        tarefaRepository.salva(tarefa);
+        log.info("[finaliza] TarefaApplicationService - ativaTarefa");
+
+                 
+
+
+
+
+
+    }
+
 }
