@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import javax.validation.constraints.Email;
 
+import dev.wakandaacademy.produdoro.handler.APIException;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -16,6 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.http.HttpStatus;
 
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -42,6 +44,9 @@ public class Usuario {
 		this.configuracao = new ConfiguracaoUsuario(configuracaoPadrao);
 	}
     public void mudaStatusPausaCurta() {
+		if (this.status == StatusUsuario.PAUSA_CURTA) {
+			throw APIException.build(HttpStatus.BAD_REQUEST, "Usuário já está em PAUSA CURTA!");
+		}
 		this.status = StatusUsuario.PAUSA_CURTA;
     }
 }
