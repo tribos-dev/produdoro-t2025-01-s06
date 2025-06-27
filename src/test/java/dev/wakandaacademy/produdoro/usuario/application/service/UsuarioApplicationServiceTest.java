@@ -82,4 +82,15 @@ class UsuarioApplicationServiceTest {
         verify(usuarioRepository, times(1)).buscaUsuarioPorEmail(emailInvalido);
         verify(usuarioRepository, never()).buscaUsuarioPorId(any());
     }
+
+    @Test
+    void DeveMudarStatusParaPausaCurta(){
+        Usuario usuario = DataHelper.createUsuario();
+
+        when(usuarioRepository.buscaUsuarioPorEmail(anyString())).thenReturn(usuario);
+        when(usuarioRepository.buscaUsuarioPorId(any())).thenReturn(usuario);
+        usuarioApplicationService.mudaStatusParaPausaCurta(usuario.getEmail(), usuario.getIdUsuario());
+        assertEquals(StatusUsuario.PAUSA_CURTA, usuario.getStatus());
+        verify(usuarioRepository, times(1)).salva(usuario);
+    }
 }
