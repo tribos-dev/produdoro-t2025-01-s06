@@ -1,11 +1,12 @@
 package dev.wakandaacademy.produdoro.tarefa.application.service;
 
+import dev.wakandaacademy.produdoro.config.security.service.TokenService;
 import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaDoUsuarioListResponse;
+import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaEditaRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
-import dev.wakandaacademy.produdoro.tarefa.domain.StatusAtivacaoTarefa;
 import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
 import dev.wakandaacademy.produdoro.usuario.application.repository.UsuarioRepository;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
@@ -23,6 +24,7 @@ import java.util.UUID;
 public class TarefaApplicationService implements TarefaService {
     private final TarefaRepository tarefaRepository;
     private final UsuarioRepository usuarioRepository;
+    private final TokenService tokenService;
 
 
     @Override
@@ -89,12 +91,22 @@ public class TarefaApplicationService implements TarefaService {
         tarefaRepository.salva(tarefa);
         log.info("[finaliza] TarefaApplicationService - ativaTarefa");
 
-
-
-
-
-
-
     }
 
+    @Override
+    public void editaTarefa(String token, UUID idTarefa, TarefaEditaRequest request) {
+        log.info("[inicia] TarefaApplicationService - editaTarefa");
+        var usuarioEmailOpt = tokenService.getUsuario(token);
+        Usuario usuario = usuarioEmailOpt
+                .map(email -> usuarioRepository.buscaUsuarioPorEmail(email))
+                .orElseThrow(() -> APIException.build(HttpStatus.UNAUTHORIZED, "Token inválido ou expirado"));
+        Tarefa tarefa = tarefaRepository.buscaTarefaPorId(idTarefa)
+                .orElseThrow(() -> APIException.build(HttpStatus.NOT_FOUND, "Tarefa não encontrada!"));
+        tarefa.pertenceAoUsuario(usuario);
+        tarefa.editarDescricao(request.getDescricao());
+        tarefaRepository.salva(tarefa);
+        log.info("[finaliza] TarefaApplicationService - editaTarefa");
+    }
 }
+
+

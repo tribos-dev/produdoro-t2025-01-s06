@@ -36,5 +36,9 @@ public interface TarefaAPI {
     List<TarefaDoUsuarioListResponse> listaTarefasPeloUsuario(@RequestHeader(name = "Authorization",required = true)
                                                               String token, @PathVariable UUID idUsuario);
 
-
+    @PatchMapping("/{idTarefa}/editar")
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    void editaTarefa(@RequestHeader(name = "Authorization", required = true) String token,
+                     @PathVariable UUID idTarefa,
+                     @RequestBody @Valid TarefaEditaRequest request);
 }

@@ -65,4 +65,7 @@ public class Tarefa {
 	public void ativaTarefa() {
 		this.statusAtivacao = StatusAtivacaoTarefa.ATIVA;
 	}
+
+	public void editarDescricao(Object descricao) {
+	}
 }

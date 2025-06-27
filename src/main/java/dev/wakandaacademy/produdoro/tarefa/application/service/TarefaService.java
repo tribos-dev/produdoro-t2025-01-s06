@@ -1,6 +1,7 @@
 package dev.wakandaacademy.produdoro.tarefa.application.service;
 
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaDoUsuarioListResponse;
+import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaEditaRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
 import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
@@ -13,4 +14,6 @@ public interface TarefaService {
     void ativaTarefa(String usuario, UUID idTarefa);
     void limparTodasTarefas(String usuario, UUID idUsuario);
     List<TarefaDoUsuarioListResponse> buscaTarefasDoUsuario(String emailUsuario, UUID idUsuario);
+
+    void editaTarefa(String token, UUID idTarefa, TarefaEditaRequest request);
 }

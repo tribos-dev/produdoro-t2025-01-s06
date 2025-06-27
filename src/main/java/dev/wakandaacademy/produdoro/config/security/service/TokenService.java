@@ -65,5 +65,6 @@ public class TokenService {
         log.info(token);
         log.info("[finaliza] TokenService - getUsuarioByBearerToken");
         return this.getUsuario(token);
+
     }
 }
