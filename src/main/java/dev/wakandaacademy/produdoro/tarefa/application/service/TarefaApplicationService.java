@@ -47,9 +47,6 @@ public class TarefaApplicationService implements TarefaService {
         log.info("[inicia] TarefaApplicationService - concluiTarefa");
         Usuario usuario = usuarioRepository.buscaUsuarioPorEmail(emailPorUsuario);
         Tarefa tarefa = detalhaTarefa(emailPorUsuario, idTarefa);
-            if (tarefa.getStatus().equals(StatusTarefa.CONCLUIDA)) {
-                throw APIException.build(HttpStatus.BAD_REQUEST, "Tarefa já está concluída");
-            }
         tarefa.mudaStatusParaConcluida(usuario);
         tarefaRepository.salva(tarefa);
         log.info("[finaliza] TarefaApplicationService - concluiTarefa");
