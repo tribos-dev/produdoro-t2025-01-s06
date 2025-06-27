@@ -1,5 +1,6 @@
 package dev.wakandaacademy.produdoro.tarefa.application.api;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -16,39 +17,61 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 @RequiredArgsConstructor
 public class TarefaRestController implements TarefaAPI {
-	private final TarefaService tarefaService;
-	private final TokenService tokenService;
+    private final TarefaService tarefaService;
+    private final TokenService tokenService;
 
-	public TarefaIdResponse postNovaTarefa(TarefaRequest tarefaRequest) {
-		log.info("[inicia]  TarefaRestController - postNovaTarefa  ");
-		TarefaIdResponse tarefaCriada = tarefaService.criaNovaTarefa(tarefaRequest);
-		log.info("[finaliza]  TarefaRestController - postNovaTarefa");
-		return tarefaCriada;
-	}
+    public TarefaIdResponse postNovaTarefa(TarefaRequest tarefaRequest) {
+        log.info("[inicia]  TarefaRestController - postNovaTarefa  ");
+        TarefaIdResponse tarefaCriada = tarefaService.criaNovaTarefa(tarefaRequest);
+        log.info("[finaliza]  TarefaRestController - postNovaTarefa");
+        return tarefaCriada;
+    }
 
-	@Override
-	public TarefaDetalhadoResponse detalhaTarefa(String token, UUID idTarefa) {
-		log.info("[inicia] TarefaRestController - detalhaTarefa");
-		String usuario = getUsuarioByToken(token);
-		Tarefa tarefa = tarefaService.detalhaTarefa(usuario,idTarefa);
-		log.info("[finaliza] TarefaRestController - detalhaTarefa");
-		return new TarefaDetalhadoResponse(tarefa);
-	}
+    @Override
+    public TarefaDetalhadoResponse detalhaTarefa(String token, UUID idTarefa) {
+        log.info("[inicia] TarefaRestController - detalhaTarefa");
+        String usuario = getUsuarioByToken(token);
+        Tarefa tarefa = tarefaService.detalhaTarefa(usuario, idTarefa);
+        log.info("[finaliza] TarefaRestController - detalhaTarefa");
+        return new TarefaDetalhadoResponse(tarefa);
+    }
 
-	@Override
-	public void concluiTarefa(String token, UUID idTarefa) {
-		log.info("[inicia] TarefaRestController - concluiTarefa");
-		String usuario = getUsuarioByToken(token);
-		tarefaService.concluiTarefa(usuario, idTarefa);
-		log.info("[finaliza] TarefaRestController - concluiTarefa");
+    @Override
+    public void deletaTodasTarefas(String token, UUID idUsuario) {
+        log.info("[inicia] TarefaRestController - deletaTodasTarefas");
+        String usuario = getUsuarioByToken(token);
+        tarefaService.limparTodasTarefas(usuario, idUsuario);
+        log.info("[finaliza] TarefaRestController - deletaTodasTarefas");
+    }
 
-	}
+    @Override
+    public List<TarefaDoUsuarioListResponse> listaTarefasPeloUsuario(String token, UUID idUsuario) {
+        log.info("[start] TarefaRestController - listaTarefasPeloUsuario");
+        String emailUsuario = getUsuarioByToken(token);
+        List<TarefaDoUsuarioListResponse> tarefas = tarefaService.buscaTarefasDoUsuario(emailUsuario, idUsuario);
+        log.info("[finish] TarefaRestController - listaTarefasPeloUsuario");
+        return tarefas;
+    }
 
-	private String getUsuarioByToken(String token) {
-		log.debug("[token] {}", token);
-		String usuario = tokenService.getUsuarioByBearerToken(token).orElseThrow(() -> APIException.build(HttpStatus.UNAUTHORIZED, token));
+    @Override
+    public void concluiTarefa(String token, UUID idTarefa) {
+        log.info("[inicia] TarefaRestController - concluiTarefa");
+        String usuario = getUsuarioByToken(token);
+        tarefaService.concluiTarefa(usuario, idTarefa);
+        log.info("[finaliza] TarefaRestController - concluiTarefa");
+    }
+
+    public void ativaTarefa(String token, UUID idTarefa) {
+        log.info("[inicia] TarefaRestController - ativaTarefa");
+        String usuario = getUsuarioByToken(token);
+        tarefaService.ativaTarefa(usuario, idTarefa);
+        log.info("[finaliza] TarefaRestController - ativaTarefa");
+    }
+
+    private String getUsuarioByToken(String token) {
+        log.debug("[token] {}", token);
+        String usuario = tokenService.getUsuarioByBearerToken(token).orElseThrow(() -> APIException.build(HttpStatus.UNAUTHORIZED, token));
 		log.info("[usuario] {}", usuario);
 		return usuario;
 	}
-
 }
