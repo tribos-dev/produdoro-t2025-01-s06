@@ -44,6 +44,19 @@ public class Usuario {
 		this.configuracao = new ConfiguracaoUsuario(configuracaoPadrao);
 	}
 
+	public void mudaStatusParaPausaLonga(UUID idUsuario) {
+		validaUsuario(idUsuario);
+		validaSeUsuarioJaEstaEmPausaLonga();
+		this.status = StatusUsuario.PAUSA_LONGA;
+	}
+
+	public void validaSeUsuarioJaEstaEmPausaLonga() {
+		if (this.status.equals(StatusUsuario.PAUSA_LONGA)) {
+			throw APIException.build(HttpStatus.CONFLICT,
+					"usuário já está em PAUSA LONGA!");
+		}
+	}
+
     public void validaUsuario(UUID idUsuario) {
 		if (!this.idUsuario.equals(idUsuario)) {
 			throw APIException.build(HttpStatus.UNAUTHORIZED,
