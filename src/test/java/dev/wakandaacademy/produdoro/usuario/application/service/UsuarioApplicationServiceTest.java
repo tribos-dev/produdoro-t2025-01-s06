@@ -54,4 +54,32 @@ class UsuarioApplicationServiceTest {
         assertEquals(HttpStatus.BAD_REQUEST,
                 exception.getStatusException());
     }
+
+    @Test
+    void deveMudarStatusParaFocoComSucesso() {
+        Usuario usuario = DataHelper.createUsuario();
+        when(usuarioRepository.buscaUsuarioPorEmail(usuario.getEmail())).thenReturn(usuario);
+        when(usuarioRepository.buscaUsuarioPorId(usuario.getIdUsuario())).thenReturn(usuario);
+        usuarioApplicationService.mudaStatusParaFoco(usuario.getEmail(), usuario.getIdUsuario());
+        assertEquals(StatusUsuario.FOCO, usuario.getStatus());
+        verify(usuarioRepository, times(1)).buscaUsuarioPorEmail(usuario.getEmail());
+    }
+
+
+    @Test
+    void naoDeveMudarStatusParaFocoQuandoTokeninvalido() {
+        Usuario usuarioLogado = DataHelper.createUsuario();
+        String emailInvalido = "email@invalido.com";
+
+        when(usuarioRepository.buscaUsuarioPorEmail(emailInvalido))
+                .thenThrow(APIException.build(HttpStatus.UNAUTHORIZED, "Credencial de autenticação não é válida"));
+
+        APIException exception = assertThrows(APIException.class,
+                () -> usuarioApplicationService.mudaStatusParaFoco(emailInvalido, usuarioLogado.getIdUsuario()));
+
+        assertEquals("Credencial de autenticação não é válida", exception.getMessage());
+        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusException());
+        verify(usuarioRepository, times(1)).buscaUsuarioPorEmail(emailInvalido);
+        verify(usuarioRepository, never()).buscaUsuarioPorId(any());
+    }
 }
