@@ -70,4 +70,28 @@ public class Usuario {
 			throw APIException.build(HttpStatus.UNAUTHORIZED, "Token Nao Corresponde ao Usuario!");
 		}
 	}
+
+	public void mudaStatusParaFoco(UUID idUsuario) {
+		perteceAoUsuario(idUsuario);
+		verificaStatusFoco();
+		alteraStatusFoco();
+	}
+
+	private void perteceAoUsuario(UUID usuarioFoco) {
+		if (!this.idUsuario.equals(usuarioFoco)) {
+			throw APIException.build(HttpStatus.UNAUTHORIZED, " credencial de autenticação não é válida. ");
+		}
+
+	}
+
+	private void alteraStatusFoco() {
+		this.status = StatusUsuario.FOCO;
+	}
+
+	private void verificaStatusFoco() {
+		if (this.status.equals(StatusUsuario.FOCO)) {
+			throw APIException.build(HttpStatus.BAD_REQUEST, "O usuário já está em foco.");
+		}
+
+	}
 }
