@@ -44,6 +44,12 @@ public class UsuarioApplicationService implements UsuarioService {
 	}
 
 	public void mudaStatusParaPausaCurta(String email, UUID idUsuario) {
+			log.info("[inicia] UsuarioApplicationService - pausaCurta");
+			Usuario usuarioMudaStatus = usuarioRepository.buscaUsuarioPorId(idUsuario);
+			usuarioRepository.buscaUsuarioPorEmail(email);
+			usuarioMudaStatus.mudaStatusPausaCurta();
+			usuarioRepository.salva(usuarioMudaStatus);
+			log.info("[finaliza] UsuarioApplicationService - pausaCurta");
 
 	}
 }

@@ -19,8 +19,4 @@ public interface TarefaAPI {
     TarefaDetalhadoResponse detalhaTarefa(@RequestHeader(name = "Authorization",required = true) String token, 
     		@PathVariable UUID idTarefa);
 
-    @PatchMapping("/pausaCurta/{idUsuario}")
-    void mudaStatusParaPausaCurta(@RequestHeader(name = "Authorization", required = true) String token,
-                                  @PathVariable UUID idUsuario);
-
 }
