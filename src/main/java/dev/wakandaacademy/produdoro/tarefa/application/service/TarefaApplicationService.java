@@ -96,13 +96,7 @@ public class TarefaApplicationService implements TarefaService {
     @Override
     public void editaTarefa(String token, UUID idTarefa, TarefaEditaRequest request) {
         log.info("[inicia] TarefaApplicationService - editaTarefa");
-        var usuarioEmailOpt = tokenService.getUsuario(token);
-        Usuario usuario = usuarioEmailOpt
-                .map(email -> usuarioRepository.buscaUsuarioPorEmail(email))
-                .orElseThrow(() -> APIException.build(HttpStatus.UNAUTHORIZED, "Token inválido ou expirado"));
-        Tarefa tarefa = tarefaRepository.buscaTarefaPorId(idTarefa)
-                .orElseThrow(() -> APIException.build(HttpStatus.NOT_FOUND, "Tarefa não encontrada!"));
-        tarefa.pertenceAoUsuario(usuario);
+        Tarefa tarefa = detalhaTarefa(token, idTarefa);
         tarefa.editarDescricao(request.getDescricao());
         tarefaRepository.salva(tarefa);
         log.info("[finaliza] TarefaApplicationService - editaTarefa");

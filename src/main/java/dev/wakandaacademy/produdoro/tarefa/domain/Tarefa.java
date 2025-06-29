@@ -66,6 +66,11 @@ public class Tarefa {
 		this.statusAtivacao = StatusAtivacaoTarefa.ATIVA;
 	}
 
-	public void editarDescricao(Object descricao) {
+	public void editarDescricao(String novaDescricao) {
+		if (novaDescricao == null || novaDescricao.isBlank()) {
+			throw APIException.build(HttpStatus.BAD_REQUEST, "Descrição não pode ser vazia ou nula.");
+		}
+		this.descricao = novaDescricao;
+
 	}
 }
