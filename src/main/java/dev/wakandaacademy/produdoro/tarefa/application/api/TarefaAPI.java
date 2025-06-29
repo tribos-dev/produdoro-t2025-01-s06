@@ -36,5 +36,9 @@ public interface TarefaAPI {
     List<TarefaDoUsuarioListResponse> listaTarefasPeloUsuario(@RequestHeader(name = "Authorization",required = true)
                                                               String token, @PathVariable UUID idUsuario);
 
+    @PatchMapping("/{idTarefa}/modifica-ordem")
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    void usuarioModificaOrdemDaTarefa(@RequestHeader(name = "Authorization", required = true) String token,
+                     @PathVariable UUID idTarefa , @RequestParam (required = true, name = "posicao") int novaPosicao);
 
 }
