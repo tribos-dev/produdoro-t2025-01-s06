@@ -43,6 +43,14 @@ public class Usuario {
 		this.status = StatusUsuario.FOCO;
 		this.configuracao = new ConfiguracaoUsuario(configuracaoPadrao);
 	}
+    public void mudaStatusPausaCurta(UUID idUsuario) {
+		validaUsuario(idUsuario);
+		if (this.status == StatusUsuario.PAUSA_CURTA) {
+			throw APIException.build(HttpStatus.BAD_REQUEST, "Usuário já está em PAUSA CURTA!");
+		}
+		this.status = StatusUsuario.PAUSA_CURTA;
+    }
+
 
 	public void mudaStatusParaPausaLonga(UUID idUsuario) {
 		validaUsuario(idUsuario);

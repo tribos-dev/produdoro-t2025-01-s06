@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import dev.wakandaacademy.produdoro.DataHelper;
 import dev.wakandaacademy.produdoro.usuario.application.repository.UsuarioRepository;
+import dev.wakandaacademy.produdoro.usuario.domain.StatusUsuario;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
 import dev.wakandaacademy.produdoro.DataHelper;
 import dev.wakandaacademy.produdoro.handler.APIException;
@@ -160,9 +161,4 @@ class TarefaApplicationServiceTest {
 
 
     }
-
-
-
-
-
 }
