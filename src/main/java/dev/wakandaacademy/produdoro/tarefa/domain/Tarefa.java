@@ -57,6 +57,21 @@ public class Tarefa {
 		}
 	}
 
+	public void verficaSePodeSerAtiva() {
+		if(this.statusAtivacao.equals(StatusAtivacaoTarefa.ATIVA)) {
+			throw APIException.build(HttpStatus.CONFLICT, "Tarefa já está ativa");}
+
+	}
+
+	public void ativaTarefa() {
+		this.statusAtivacao = StatusAtivacaoTarefa.ATIVA;
+	}
+
+	public void mudaStatusParaConcluida(Usuario usuario) {
+		pertenceAoUsuario(usuario);
+		this.status = StatusTarefa.CONCLUIDA;
+	}
+
 	public void incrementaPomodoro(Usuario usuarioPorEmail, Tarefa tarefa) {
 		pertenceAoUsuario(usuarioPorEmail);
 		this.contagemPomodoro++;
