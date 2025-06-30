@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
+import dev.wakandaacademy.produdoro.usuario.domain.StatusUsuario;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
 
 import org.springframework.context.support.DefaultLifecycleProcessor;
@@ -74,6 +75,24 @@ public class Tarefa {
 
 	public void incrementaPomodoro(Usuario usuarioPorEmail, Tarefa tarefa) {
 		pertenceAoUsuario(usuarioPorEmail);
+		verificaSeUsuarioEstaEmFoco(usuarioPorEmail);
 		this.contagemPomodoro++;
+		verificaQuantidadePomodoro(tarefa, usuarioPorEmail);
 	}
+
+	public void  verificaQuantidadePomodoro(Tarefa tarefa, Usuario usuario) {
+		int totalPomodoro = tarefa.getContagemPomodoro();
+		if (totalPomodoro % 4 == 0) {
+			usuario.mudaStatusParaPausaLonga(usuario.getIdUsuario());
+		} else {
+			usuario.mudaStatusPausaCurta(usuario.getIdUsuario());
+		}
+	}
+
+	private void verificaSeUsuarioEstaEmFoco (Usuario usuario) {
+		if (!usuario.getStatus().equals(StatusUsuario.FOCO)) {
+			throw APIException.build(HttpStatus.CONFLICT, "O usário não está em FOCO!");
+		}
+	}
+
 }
