@@ -1,5 +1,8 @@
 package dev.wakandaacademy.produdoro.usuario.application.api;
 
+import dev.wakandaacademy.produdoro.config.security.service.TokenService;
+import dev.wakandaacademy.produdoro.handler.APIException;
+import dev.wakandaacademy.produdoro.usuario.application.service.UsuarioApplicationService;
 import javax.validation.Valid;
 
 import dev.wakandaacademy.produdoro.config.security.service.TokenService;
@@ -11,7 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 import dev.wakandaacademy.produdoro.usuario.application.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.UUID;
 
 @RestController
@@ -21,6 +28,7 @@ import java.util.UUID;
 public class UsuarioController implements UsuarioAPI {
 	private final UsuarioService usuarioAppplicationService;
 	private final TokenService tokenService;
+	private final UsuarioApplicationService usuarioApplicationService;
 
 	@Override
 	public UsuarioCriadoResponse postNovoUsuario(@Valid UsuarioNovoRequest usuarioNovo) {
@@ -58,5 +66,19 @@ public class UsuarioController implements UsuarioAPI {
 		usuarioAppplicationService.mudaStatusParaFoco(usuario, idUsuario);
 		log.info("[finaliza] UsuarioController - mudaStatusParaFoco");
 
+	}
+
+	@Override
+	public void mudaStatusParaPausaCurta(String token, UUID idUsuario) {
+		log.info("[inicia] TarefaRestController - mudaStatusParaPausaCurta");
+		String email = getUsuarioByToken(token);
+		usuarioApplicationService.mudaStatusParaPausaCurta(email, idUsuario);
+		log.info("[finaliza] TarefaRestController - mudaStatusParaPausaCurta");
+	}
+	private String getUsuarioByToken(String token) {
+		log.debug("[token] {}", token);
+		String usuario = tokenService.getUsuarioByBearerToken(token).orElseThrow(() -> APIException.build(HttpStatus.UNAUTHORIZED, token));
+		log.info("[usuario] {}", usuario);
+		return usuario;
 	}
 }
