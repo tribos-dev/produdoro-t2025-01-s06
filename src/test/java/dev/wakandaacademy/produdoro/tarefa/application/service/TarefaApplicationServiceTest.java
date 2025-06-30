@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import dev.wakandaacademy.produdoro.DataHelper;
+import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaEditaRequest;
 import dev.wakandaacademy.produdoro.usuario.application.repository.UsuarioRepository;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
 import dev.wakandaacademy.produdoro.DataHelper;
@@ -158,11 +159,23 @@ class TarefaApplicationServiceTest {
         assertEquals("Token inválido", exception.getMessage());
 
 
-
     }
 
+    @Test
+    void DeveEditarTarefa() {
+        Usuario usuario = DataHelper.createUsuario();
+        Tarefa tarefa = DataHelper.createTarefa();
+        TarefaEditaRequest tarefaEditaRequest = DataHelper.createEditaTarefa();
 
+        when(usuarioRepository.buscaUsuarioPorEmail(usuario.getEmail())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefaPorId(tarefa.getIdTarefa())).thenReturn(Optional.of(tarefa));
 
+        tarefaApplicationService.editaTarefa(usuario.getEmail(), tarefa.getIdTarefa(), tarefaEditaRequest);
+        verify(usuarioRepository, times(1)).buscaUsuarioPorEmail(usuario.getEmail());
+        verify(tarefaRepository, times(1)).buscaTarefaPorId(tarefa.getIdTarefa());
+        assertEquals("Estudar Spring Boot", tarefa.getDescricao());
+
+    }
 
 
 }

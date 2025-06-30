@@ -14,6 +14,5 @@ public interface TarefaService {
     void ativaTarefa(String usuario, UUID idTarefa);
     void limparTodasTarefas(String usuario, UUID idUsuario);
     List<TarefaDoUsuarioListResponse> buscaTarefasDoUsuario(String emailUsuario, UUID idUsuario);
-
     void editaTarefa(String token, UUID idTarefa, TarefaEditaRequest request);
 }
