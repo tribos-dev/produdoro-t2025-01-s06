@@ -65,4 +65,9 @@ public class Tarefa {
 	public void ativaTarefa() {
 		this.statusAtivacao = StatusAtivacaoTarefa.ATIVA;
 	}
+
+	public void mudaStatusParaConcluida(Usuario usuario) {
+		pertenceAoUsuario(usuario);
+		this.status = StatusTarefa.CONCLUIDA;
+	}
 }
