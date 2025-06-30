@@ -30,7 +30,7 @@ class UsuarioApplicationServiceTest {
 
     @Test
     void mudaStatusParaPausaLonga() {
-        Usuario usuario = DataHelper.createUsuario();
+        Usuario usuario = DataHelper.createUsuario2();
         String email = usuario.getEmail();
         UUID idUsuario = usuario.getIdUsuario();
         when(usuarioRepository.salva(any())).thenReturn(usuario);
@@ -42,18 +42,6 @@ class UsuarioApplicationServiceTest {
         verify(usuarioRepository, times(1)).salva(usuario);
     }
 
-    @Test
-    void validaSeUsuarioJaEstaEmPausaLonga(){
-        Usuario usuario = DataHelper.createUsuario();
-        when(usuarioRepository.buscaUsuarioPorEmail(usuario.getEmail())).thenReturn(usuario);
-        usuarioApplicationService.mudaStatusParaPausaLonga(usuario.getEmail(), usuario.getIdUsuario());
-        APIException exception = assertThrows(APIException.class,
-                usuario::validaSeUsuarioJaEstaEmPausaLonga);
-        assertEquals("usuario já está em PAUSA LONGA",
-                exception.getMessage());
-        assertEquals(HttpStatus.BAD_REQUEST,
-                exception.getStatusException());
-    }
 
     @Test
     void deveMudarStatusParaFocoComSucesso() {
@@ -64,7 +52,6 @@ class UsuarioApplicationServiceTest {
         assertEquals(StatusUsuario.FOCO, usuario.getStatus());
         verify(usuarioRepository, times(1)).buscaUsuarioPorEmail(usuario.getEmail());
     }
-
 
     @Test
     void naoDeveMudarStatusParaFocoQuandoTokeninvalido() {
@@ -81,5 +68,16 @@ class UsuarioApplicationServiceTest {
         assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusException());
         verify(usuarioRepository, times(1)).buscaUsuarioPorEmail(emailInvalido);
         verify(usuarioRepository, never()).buscaUsuarioPorId(any());
+    }
+
+    @Test
+    void DeveMudarStatusParaPausaCurta(){
+        Usuario usuario = DataHelper.createUsuario();
+
+        when(usuarioRepository.buscaUsuarioPorEmail(anyString())).thenReturn(usuario);
+        when(usuarioRepository.buscaUsuarioPorId(any())).thenReturn(usuario);
+        usuarioApplicationService.mudaStatusParaPausaCurta(usuario.getEmail(), usuario.getIdUsuario());
+        assertEquals(StatusUsuario.PAUSA_CURTA, usuario.getStatus());
+        verify(usuarioRepository, times(1)).salva(usuario);
     }
 }

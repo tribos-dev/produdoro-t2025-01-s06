@@ -19,11 +19,14 @@ public class TarefaRestController implements TarefaAPI {
     private final TarefaService tarefaService;
     private final TokenService tokenService;
 
+
+    @Override
     public TarefaIdResponse postNovaTarefa(TarefaRequest tarefaRequest) {
         log.info("[inicia]  TarefaRestController - postNovaTarefa  ");
         TarefaIdResponse tarefaCriada = tarefaService.criaNovaTarefa(tarefaRequest);
         log.info("[finaliza]  TarefaRestController - postNovaTarefa");
         return tarefaCriada;
+
     }
 
     @Override
@@ -33,6 +36,7 @@ public class TarefaRestController implements TarefaAPI {
         Tarefa tarefa = tarefaService.detalhaTarefa(usuario, idTarefa);
         log.info("[finaliza] TarefaRestController - detalhaTarefa");
         return new TarefaDetalhadoResponse(tarefa);
+
     }
 
     @Override
@@ -66,12 +70,31 @@ public class TarefaRestController implements TarefaAPI {
         String usuario = tokenService.getUsuarioByBearerToken(token).orElseThrow(() -> APIException.build(HttpStatus.UNAUTHORIZED, token));
         log.info("[usuario] {}", usuario);
         return usuario;
+
     }
 
+    @Override
+    public void concluiTarefa(String token, UUID idTarefa) {
+        log.info("[inicia] TarefaRestController - concluiTarefa");
+        String usuario = getUsuarioByToken(token);
+        tarefaService.concluiTarefa(usuario, idTarefa);
+        log.info("[finaliza] TarefaRestController - concluiTarefa");
+    }
+
+    @Override
     public void ativaTarefa(String token, UUID idTarefa) {
         log.info("[inicia] TarefaRestController - ativaTarefa");
         String usuario = getUsuarioByToken(token);
         tarefaService.ativaTarefa(usuario, idTarefa);
         log.info("[finaliza] TarefaRestController - ativaTarefa");
+    }
+
+    @Override
+    public void deletaTarefaConcluida(String token, UUID idUsuario) {
+        log.info("[inicia] TarefaRestController - deletaTarefaConcluida");
+        String usuario = getUsuarioByToken(token);
+        tarefaService.deletaTarefasConcluidas(usuario, idUsuario);
+        log.info("[finaliza] TarefaRestController - deletaTarefaConcluida");
+
     }
 }

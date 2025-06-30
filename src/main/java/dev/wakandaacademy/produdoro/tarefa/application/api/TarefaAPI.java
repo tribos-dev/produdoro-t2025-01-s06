@@ -17,23 +17,23 @@ public interface TarefaAPI {
 
     @GetMapping("/{idTarefa}")
     @ResponseStatus(code = HttpStatus.OK)
-    TarefaDetalhadoResponse detalhaTarefa(@RequestHeader(name = "Authorization",required = true) String token, 
-    		@PathVariable UUID idTarefa);
+    TarefaDetalhadoResponse detalhaTarefa(@RequestHeader(name = "Authorization", required = true) String token,
+                                          @PathVariable UUID idTarefa);
 
     @PatchMapping("/{idTarefa}/ativa")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
     void ativaTarefa(@RequestHeader(name = "Authorization", required = true) String token,
-    		@PathVariable UUID idTarefa);
+                     @PathVariable UUID idTarefa);
 
     @DeleteMapping("/deleta-todas_tarefas/{idUsuario}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    void deletaTodasTarefas (
+    void deletaTodasTarefas(
             @RequestHeader(name = "Authorization", required = true) String token,
             @PathVariable UUID idUsuario);
 
     @GetMapping("/{idUsuario}/lista-tarefas")
     @ResponseStatus(code = HttpStatus.OK)
-    List<TarefaDoUsuarioListResponse> listaTarefasPeloUsuario(@RequestHeader(name = "Authorization",required = true)
+    List<TarefaDoUsuarioListResponse> listaTarefasPeloUsuario(@RequestHeader(name = "Authorization", required = true)
                                                               String token, @PathVariable UUID idUsuario);
 
     @PatchMapping("/{idTarefa}/editar")
@@ -41,4 +41,15 @@ public interface TarefaAPI {
     void editaTarefa(@RequestHeader(name = "Authorization", required = true) String token,
                      @PathVariable UUID idTarefa,
                      @RequestBody @Valid TarefaEditaRequest request);
+
+    @DeleteMapping("/deleta-tarefas-concluidas/{idUsuario}")
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    void deletaTarefaConcluida(@RequestHeader(name = "Authorization", required = true) String token,
+                               @PathVariable UUID idUsuario);
+
+    @PatchMapping("conclui-tarefa/{idTarefa}")
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    void concluiTarefa(@RequestHeader(name = "Authorization", required = true) String token,
+                       @PathVariable UUID idTarefa);
+
 }
