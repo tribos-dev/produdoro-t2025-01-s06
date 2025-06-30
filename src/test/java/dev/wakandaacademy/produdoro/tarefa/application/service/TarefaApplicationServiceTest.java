@@ -3,7 +3,6 @@ package dev.wakandaacademy.produdoro.tarefa.application.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,6 +13,7 @@ import dev.wakandaacademy.produdoro.usuario.domain.StatusUsuario;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
 import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.domain.StatusAtivacaoTarefa;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -149,10 +149,39 @@ class TarefaApplicationServiceTest {
         assertEquals("Token inválido", exception.getMessage());
 
 
-
     }
 
     @Test
+    @DisplayName("Deve deletar tarefas concluídas do usuario")
+    void deveDeletarTarefasConcluidasComSucesso() {
+        UUID idUsuario = UUID.randomUUID();
+        String email = "teste@usuario.com";
+
+        Usuario usuarioMock = mock(Usuario.class);
+        List<Tarefa> tarefasConcluidas = List.of(mock(Tarefa.class), mock(Tarefa.class));
+
+        when(usuarioRepository.buscaUsuarioPorEmail(email)).thenReturn(usuarioMock);
+        doNothing().when(usuarioMock).pertenceAoUsuario(idUsuario);
+        when(tarefaRepository.buscaTarefasConcluidasPorUsuario(idUsuario)).thenReturn(tarefasConcluidas);
+
+        tarefaApplicationService.deletaTarefasConcluidas(email, idUsuario);
+    }
+
+    @Test
+    @DisplayName("Deve lançar NOT_FOUND se não houver tarefas concluídas")
+    void deveLancarExcecaoSeNaoHouverTarefasConcluidas() {
+        UUID idUsuario = UUID.randomUUID();
+        String email = "teste@usuario.com";
+
+        Usuario usuarioMock = mock(Usuario.class);
+
+        when(usuarioRepository.buscaUsuarioPorEmail(email)).thenReturn(usuarioMock);
+        doNothing().when(usuarioMock).pertenceAoUsuario(idUsuario);
+        when(tarefaRepository.buscaTarefasConcluidasPorUsuario(idUsuario)).thenReturn(List.of());
+
+        APIException exception = assertThrows(APIException.class, () ->
+                tarefaApplicationService.deletaTarefasConcluidas(email, idUsuario)
+        );
     void deveConcluirTarefa() {
         Usuario usuario = DataHelper.createUsuario();
         Tarefa tarefa = DataHelper.createTarefa();
@@ -178,4 +207,5 @@ class TarefaApplicationServiceTest {
         verify(tarefaRepository, never()).salva(any(Tarefa.class));
     }
 
+    }
 }
