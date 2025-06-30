@@ -1,7 +1,9 @@
 package dev.wakandaacademy.produdoro.tarefa.application.service;
 
+import dev.wakandaacademy.produdoro.config.security.service.TokenService;
 import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaDoUsuarioListResponse;
+import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaEditaRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
@@ -22,6 +24,7 @@ import java.util.UUID;
 public class TarefaApplicationService implements TarefaService {
     private final TarefaRepository tarefaRepository;
     private final UsuarioRepository usuarioRepository;
+    private final TokenService tokenService;
 
     @Override
     public TarefaIdResponse criaNovaTarefa(TarefaRequest tarefaRequest) {
@@ -101,6 +104,13 @@ public class TarefaApplicationService implements TarefaService {
     }
 
     @Override
+    public void editaTarefa(String token, UUID idTarefa, TarefaEditaRequest request) {
+        log.info("[inicia] TarefaApplicationService - editaTarefa");
+        Tarefa tarefa = detalhaTarefa(token, idTarefa);
+        tarefa.editarDescricao(request.getDescricao());
+        tarefaRepository.salva(tarefa);
+        log.info("[finaliza] TarefaApplicationService - editaTarefa");
+    }
     public void concluiTarefa(String emailPorUsuario, UUID idTarefa) {
         log.info("[inicia] TarefaApplicationService - concluiTarefa");
         Usuario usuario = usuarioRepository.buscaUsuarioPorEmail(emailPorUsuario);
@@ -110,3 +120,5 @@ public class TarefaApplicationService implements TarefaService {
         log.info("[finaliza] TarefaApplicationService - concluiTarefa");
     }
 }
+
+
