@@ -11,19 +11,13 @@ import java.util.UUID;
 
 public interface TarefaService {
     TarefaIdResponse criaNovaTarefa(TarefaRequest tarefaRequest);
-
     Tarefa detalhaTarefa(String usuario, UUID idTarefa);
-
     void ativaTarefa(String usuario, UUID idTarefa);
-
     void limparTodasTarefas(String usuario, UUID idUsuario);
-
     List<TarefaDoUsuarioListResponse> buscaTarefasDoUsuario(String emailUsuario, UUID idUsuario);
-
     void editaTarefa(String token, UUID idTarefa, TarefaEditaRequest request);
-
     void deletaTarefasConcluidas(String usuario, UUID idUsuario);
-
     void concluiTarefa(String usuario, UUID idTarefa);
     void incrementaPomodoro(String usuario, UUID idTarefa);
+    void usuarioModificaOrdemDaTarefa(String token, UUID idTarefa, int novaPosicao, String usuario);
 }

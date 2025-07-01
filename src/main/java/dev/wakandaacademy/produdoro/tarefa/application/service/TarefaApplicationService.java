@@ -131,6 +131,12 @@ public class TarefaApplicationService implements TarefaService {
         usuarioRepository.salva(usuarioPorEmail);
         log.info("[finish] TarefaApplicationService - incrementaPomodoro");
     }
+
+    @Override
+    public void usuarioModificaOrdemDaTarefa(String token, UUID idTarefa, int novaPosicao, String usuario) {
+        log.info("[start] TarefaApplicationService - usuarioModificaOrdemDaTarefa");
+        log.info("[finish] TarefaApplicationService - usuarioModificaOrdemDaTarefa");
+    }
 }
 
 
