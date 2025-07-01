@@ -2,8 +2,11 @@ package dev.wakandaacademy.produdoro.tarefa.domain;
 
 import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
+import dev.wakandaacademy.produdoro.usuario.domain.StatusUsuario;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
 import lombok.*;
+
+import org.springframework.context.support.DefaultLifecycleProcessor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -71,4 +74,27 @@ public class Tarefa {
         pertenceAoUsuario(usuario);
         this.status = StatusTarefa.CONCLUIDA;
     }
+
+	public void incrementaPomodoro(Usuario usuarioPorEmail, Tarefa tarefa) {
+		pertenceAoUsuario(usuarioPorEmail);
+		verificaSeUsuarioEstaEmFoco(usuarioPorEmail);
+		this.contagemPomodoro++;
+		verificaQuantidadePomodoro(tarefa, usuarioPorEmail);
+	}
+
+	public void  verificaQuantidadePomodoro(Tarefa tarefa, Usuario usuario) {
+		int totalPomodoro = tarefa.getContagemPomodoro();
+		if (totalPomodoro % 4 == 0) {
+			usuario.mudaStatusParaPausaLonga(usuario.getIdUsuario());
+		} else {
+			usuario.mudaStatusPausaCurta(usuario.getIdUsuario());
+		}
+	}
+
+	private void verificaSeUsuarioEstaEmFoco (Usuario usuario) {
+		if (!usuario.getStatus().equals(StatusUsuario.FOCO)) {
+			throw APIException.build(HttpStatus.CONFLICT, "O usuario não está em FOCO!");
+		}
+	}
+
 }

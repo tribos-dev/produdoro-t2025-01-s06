@@ -119,6 +119,18 @@ public class TarefaApplicationService implements TarefaService {
         tarefaRepository.salva(tarefa);
         log.info("[finaliza] TarefaApplicationService - concluiTarefa");
     }
+
+    @Override
+    public void incrementaPomodoro(String usuario, UUID idTarefa) {
+        log.info("[start] TarefaApplicationService - incrementaPomodoro");
+        Tarefa tarefa = detalhaTarefa(usuario, idTarefa);
+        Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(usuario);
+        tarefa.incrementaPomodoro(usuarioPorEmail, tarefa);
+        tarefa.ativaTarefa();
+        tarefaRepository.salva(tarefa);
+        usuarioRepository.salva(usuarioPorEmail);
+        log.info("[finish] TarefaApplicationService - incrementaPomodoro");
+    }
 }
 
 

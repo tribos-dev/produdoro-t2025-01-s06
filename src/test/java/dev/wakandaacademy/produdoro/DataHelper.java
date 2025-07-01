@@ -15,13 +15,14 @@ import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
 public class DataHelper {
 
     private static final UUID usuario1 = UUID.fromString("a713162f-20a9-4db9-a85b-90cd51ab18f4");
+    private static final UUID usuario2 = UUID.fromString("533196ef-c244-444a-9bd6-ba3d54eef16f");
 
     public static Usuario createUsuario() {
         return Usuario.builder().email("email@email.com").status(StatusUsuario.PAUSA_LONGA).idUsuario(usuario1).build();
     }
 
     public static Usuario createUsuario2() {
-        return Usuario.builder().email("email@email.com").status(StatusUsuario.FOCO).idUsuario(usuario1).build();
+        return Usuario.builder().email("email2@email.com").status(StatusUsuario.FOCO).idUsuario(usuario2).build();
     }
 
     public static Tarefa createTarefa() {
