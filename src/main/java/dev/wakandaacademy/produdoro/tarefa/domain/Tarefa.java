@@ -5,7 +5,6 @@ import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
 import dev.wakandaacademy.produdoro.usuario.domain.StatusUsuario;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
 import lombok.*;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -36,7 +35,7 @@ public class Tarefa {
     private int contagemPomodoro;
     private int posicaoTarefa;
 
-    public Tarefa(TarefaRequest tarefaRequest , Integer numeroDeTarefas) {
+    public Tarefa(TarefaRequest tarefaRequest, Integer numeroDeTarefas) {
         this.idTarefa = UUID.randomUUID();
         this.idUsuario = tarefaRequest.getIdUsuario();
         this.descricao = tarefaRequest.getDescricao();
@@ -77,29 +76,37 @@ public class Tarefa {
         this.status = StatusTarefa.CONCLUIDA;
     }
 
-	public void incrementaPomodoro(Usuario usuarioPorEmail, Tarefa tarefa) {
-		pertenceAoUsuario(usuarioPorEmail);
-		verificaSeUsuarioEstaEmFoco(usuarioPorEmail);
-		this.contagemPomodoro++;
-		verificaQuantidadePomodoro(tarefa, usuarioPorEmail);
-	}
+    public void incrementaPomodoro(Usuario usuarioPorEmail, Tarefa tarefa) {
+        pertenceAoUsuario(usuarioPorEmail);
+        verificaSeUsuarioEstaEmFoco(usuarioPorEmail);
+        this.contagemPomodoro++;
+        verificaQuantidadePomodoro(tarefa, usuarioPorEmail);
+    }
 
-	public void  verificaQuantidadePomodoro(Tarefa tarefa, Usuario usuario) {
-		int totalPomodoro = tarefa.getContagemPomodoro();
-		if (totalPomodoro % 4 == 0) {
-			usuario.mudaStatusParaPausaLonga(usuario.getIdUsuario());
-		} else {
-			usuario.mudaStatusPausaCurta(usuario.getIdUsuario());
-		}
-	}
+    public void verificaQuantidadePomodoro(Tarefa tarefa, Usuario usuario) {
+        int totalPomodoro = tarefa.getContagemPomodoro();
+        if (totalPomodoro % 4 == 0) {
+            usuario.mudaStatusParaPausaLonga(usuario.getIdUsuario());
+        } else {
+            usuario.mudaStatusPausaCurta(usuario.getIdUsuario());
+        }
+    }
 
-	private void verificaSeUsuarioEstaEmFoco (Usuario usuario) {
-		if (!usuario.getStatus().equals(StatusUsuario.FOCO)) {
-			throw APIException.build(HttpStatus.CONFLICT, "O usuario não está em FOCO!");
-		}
-	}
+    private void verificaSeUsuarioEstaEmFoco(Usuario usuario) {
+        if (!usuario.getStatus().equals(StatusUsuario.FOCO)) {
+            throw APIException.build(HttpStatus.CONFLICT, "O usuario não está em FOCO!");
+        }
+    }
 
+    public void incrementaPosicao(Integer posicao) {
+        this.posicaoTarefa = ++posicao;
+    }
 
+    public void decrementaPosicao(Integer posicao) {
+        this.posicaoTarefa = --posicao;
+    }
 
-
+    public void defineNovaPosicao(int novaPosicao) {
+        this.posicaoTarefa = novaPosicao;
+    }
 }

@@ -138,12 +138,42 @@ public class TarefaApplicationService implements TarefaService {
     @Override
     public void usuarioModificaOrdemDaTarefa(UUID idTarefa, int novaPosicao, String usuario) {
         log.info("[start] TarefaApplicationService - usuarioModificaOrdemDaTarefa");
-        Tarefa tarefa = detalhaTarefa(usuario,idTarefa);
-        List<Tarefa> tarefas = tarefaRepository.buscaTarefasDoUsuario(tarefa.getIdUsuario())
-                .stream().sorted(Comparator.comparingInt(Tarefa::getPosicaoTarefa)).collect(Collectors.toList());
-
+        List<Tarefa> listaDeTarefas = buscaListaDetarefas(usuario);
+        Tarefa tarefaParaMover = buscaTarefaDaLista(idTarefa, listaDeTarefas);
+        int posicaoAtual = tarefaParaMover.getPosicaoTarefa();
+        novaPosicao = Math.max(1, Math.min(novaPosicao, listaDeTarefas.size()));
+        alteraPosicaoDasTarefas(listaDeTarefas, novaPosicao, posicaoAtual);
+        tarefaParaMover.defineNovaPosicao(novaPosicao);
+        tarefaRepository.salvarTodasTarefas(listaDeTarefas);
         log.info("[finish] TarefaApplicationService - usuarioModificaOrdemDaTarefa");
     }
+
+    private List<Tarefa> buscaListaDetarefas(String usuario) {
+        Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(usuario);
+        return tarefaRepository.buscaTarefasDoUsuario(usuarioPorEmail.getIdUsuario());
+    }
+
+    private static Tarefa buscaTarefaDaLista(UUID idTarefa, List<Tarefa> listaDeTarefas) {
+        return listaDeTarefas.stream()
+                .filter(tarefa -> tarefa.getIdTarefa().equals(idTarefa))
+                .findFirst()
+                .orElseThrow(() -> APIException.build(HttpStatus.NOT_FOUND, "Id da tarefa inválido"));
+    }
+
+    private void validaNovaPosicaoTarefa(Integer novaPosicao, int posicaoAtual) {
+        if (novaPosicao == posicaoAtual) {
+            throw APIException.build(HttpStatus.CONFLICT, "A nova posição já é a atual");
+        }
+    }
+
+    private void alteraPosicaoDasTarefas(List<Tarefa> tarefasList, Integer novaPosicao, int posicaoAtual) {
+        validaNovaPosicaoTarefa(novaPosicao, posicaoAtual);
+        for (Tarefa tarefa : tarefasList) {
+            int posicao = tarefa.getPosicaoTarefa();
+            if (posicaoAtual < novaPosicao && posicao > posicaoAtual && posicao <= novaPosicao)
+                tarefa.decrementaPosicao(posicao);
+            else if (posicaoAtual > novaPosicao && posicao >= novaPosicao && posicao < posicaoAtual)
+                tarefa.incrementaPosicao(posicao);
+        }
+    }
 }
-
-

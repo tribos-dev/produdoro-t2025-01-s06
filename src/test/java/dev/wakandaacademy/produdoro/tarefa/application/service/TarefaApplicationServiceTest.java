@@ -45,7 +45,7 @@ class TarefaApplicationServiceTest {
     @Test
     void deveRetornarIdTarefaNovaCriada() {
         TarefaRequest request = getTarefaRequest();
-        when(tarefaRepository.salva(any())).thenReturn(new Tarefa(request, numeroDeTarefas));
+        when(tarefaRepository.salva(any())).thenReturn(new Tarefa(request, 0));
 
         TarefaIdResponse response = tarefaApplicationService.criaNovaTarefa(request);
 
