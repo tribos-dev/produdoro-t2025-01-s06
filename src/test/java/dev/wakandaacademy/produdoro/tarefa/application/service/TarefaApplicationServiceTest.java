@@ -1,5 +1,6 @@
 package dev.wakandaacademy.produdoro.tarefa.application.service;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -71,7 +72,7 @@ class TarefaApplicationServiceTest {
     }
 
     public TarefaRequest getTarefaRequest() {
-        TarefaRequest request = new TarefaRequest("tarefa 1", UUID.randomUUID(), null, null, 0);
+        TarefaRequest request = new TarefaRequest("tarefa 1", randomUUID(), null, null, 0);
         return request;
     }
 
@@ -93,7 +94,7 @@ class TarefaApplicationServiceTest {
 
     @Test
     void deveLancarExcecaoQuandoUsuarioNaoEncontradoAoListarTarefas() {
-        UUID idUsuario = UUID.randomUUID();
+        UUID idUsuario = randomUUID();
 
         when(usuarioRepository.buscaUsuarioPorId(idUsuario)).thenThrow(
                 APIException.build(HttpStatus.BAD_REQUEST, "Usuario não encontrado!"));
@@ -122,7 +123,7 @@ class TarefaApplicationServiceTest {
     @Test
     void DeveLancarExcecaoSeIdTarefaForIvalido() {
         Usuario usuario = DataHelper.createUsuario();
-        UUID idTarefa = UUID.randomUUID();
+        UUID idTarefa = randomUUID();
 
         when(usuarioRepository.buscaUsuarioPorEmail(usuario.getEmail())).thenReturn(usuario);
         when(tarefaRepository.buscaTarefaPorId(idTarefa)).thenReturn(Optional.empty());
@@ -143,7 +144,7 @@ class TarefaApplicationServiceTest {
                 .thenThrow(APIException.build(HttpStatus.UNAUTHORIZED, "Token inválido"));
 
         APIException exception = assertThrows(APIException.class,
-                () -> tarefaApplicationService.ativaTarefa(emailUsuario, UUID.randomUUID()));
+                () -> tarefaApplicationService.ativaTarefa(emailUsuario, randomUUID()));
 
         assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusException());
         assertEquals("Token inválido", exception.getMessage());
@@ -154,7 +155,7 @@ class TarefaApplicationServiceTest {
     @Test
     @DisplayName("Deve deletar tarefas concluídas do usuario")
     void deveDeletarTarefasConcluidasComSucesso() {
-        UUID idUsuario = UUID.randomUUID();
+        UUID idUsuario = randomUUID();
         String email = "teste@usuario.com";
 
         Usuario usuarioMock = mock(Usuario.class);
@@ -170,7 +171,7 @@ class TarefaApplicationServiceTest {
     @Test
     @DisplayName("Deve lançar NOT_FOUND se não houver tarefas concluídas")
     void deveLancarExcecaoSeNaoHouverTarefasConcluidas() {
-        UUID idUsuario = UUID.randomUUID();
+        UUID idUsuario = randomUUID();
         String email = "teste@usuario.com";
 
         Usuario usuarioMock = mock(Usuario.class);
@@ -182,6 +183,8 @@ class TarefaApplicationServiceTest {
         APIException exception = assertThrows(APIException.class, () ->
                 tarefaApplicationService.deletaTarefasConcluidas(email, idUsuario)
         );
+    }
+
     void deveConcluirTarefa() {
         Usuario usuario = DataHelper.createUsuario();
         Tarefa tarefa = DataHelper.createTarefa();
@@ -195,7 +198,7 @@ class TarefaApplicationServiceTest {
     @Test
     void deveLancarExcecaoSeTarefaNaoEncontrada() {
         Usuario usuario = DataHelper.createUsuario();
-        UUID idInvalido = UUID.randomUUID();
+        UUID idInvalido = randomUUID();
 
         when(usuarioRepository.buscaUsuarioPorEmail(usuario.getEmail())).thenReturn(usuario);
         APIException exception = assertThrows(APIException.class,
@@ -207,5 +210,48 @@ class TarefaApplicationServiceTest {
         verify(tarefaRepository, never()).salva(any(Tarefa.class));
     }
 
+    @Test
+    void deveIncrementarPomodoroATarefa() {
+        Usuario usuario = DataHelper.createUsuario2();
+        Tarefa tarefa = DataHelper.createTarefa();
+
+        when(usuarioRepository.buscaUsuarioPorEmail(usuario.getEmail())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefaPorId(tarefa.getIdTarefa())).thenReturn(Optional.of(tarefa));
+        when(tarefaRepository.salva(any(Tarefa.class))).thenReturn(tarefa);
+        when(usuarioRepository.salva(any(Usuario.class))).thenReturn(usuario);
+        tarefaApplicationService.incrementaPomodoro(usuario.getEmail(), tarefa.getIdTarefa());
+
+        assertEquals(2, tarefa.getContagemPomodoro());
+        assertEquals(StatusAtivacaoTarefa.ATIVA, tarefa.getStatusAtivacao());
+    }
+
+    @Test
+    void deveLancarExcecaoSeTarefaNaoExisteAoIncrementarPomodoro() {
+        UUID idInvalido = randomUUID();
+        Usuario usuario = DataHelper.createUsuario2();
+
+        when(usuarioRepository.buscaUsuarioPorEmail(usuario.getEmail())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefaPorId(idInvalido)).thenReturn(Optional.empty());
+
+        APIException exception = assertThrows(APIException.class, () ->
+                tarefaApplicationService.incrementaPomodoro(usuario.getEmail(), idInvalido));
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusException());
+        assertEquals("Tarefa não encontrada!", exception.getMessage());
+    }
+
+    @Test
+    void deveLancarExcecaoSeUsuarioNaoPertencerATarefaAoIncrementarPomodoro() {
+        Tarefa tarefa = DataHelper.createTarefa();
+        Usuario usuario = DataHelper.createUsuario2();
+
+        when(usuarioRepository.buscaUsuarioPorEmail(usuario.getEmail())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefaPorId(tarefa.getIdTarefa())).thenReturn(Optional.of(tarefa));
+
+        APIException exception = assertThrows(APIException.class, () ->
+                tarefaApplicationService.incrementaPomodoro(usuario.getEmail(), tarefa.getIdTarefa()) );
+
+        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusException());
+        assertEquals("Usuário não é dono da Tarefa solicitada!", exception.getMessage());
     }
 }

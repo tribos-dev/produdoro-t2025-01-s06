@@ -91,7 +91,7 @@ public class Tarefa {
 
 	private void verificaSeUsuarioEstaEmFoco (Usuario usuario) {
 		if (!usuario.getStatus().equals(StatusUsuario.FOCO)) {
-			throw APIException.build(HttpStatus.CONFLICT, "O usário não está em FOCO!");
+			throw APIException.build(HttpStatus.CONFLICT, "O usuario não está em FOCO!");
 		}
 	}
 
