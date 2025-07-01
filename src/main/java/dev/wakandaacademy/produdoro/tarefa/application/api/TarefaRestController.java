@@ -100,7 +100,7 @@ public class TarefaRestController implements TarefaAPI {
     public void usuarioModificaOrdemDaTarefa(String token, UUID idTarefa, int novaPosicao) {
         log.info("[start] TarefaRestController - usuarioModificaOrdemDaTarefa");
         String usuario = getUsuarioByToken(token);
-        tarefaService.usuarioModificaOrdemDaTarefa(token, idTarefa, novaPosicao, usuario);
+        tarefaService.usuarioModificaOrdemDaTarefa(idTarefa, novaPosicao, usuario);
         log.info("[finish] TarefaRestController - usuarioModificaOrdemDaTarefa");
     }
 

@@ -15,8 +15,10 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -28,10 +30,8 @@ public class TarefaApplicationService implements TarefaService {
 
     public TarefaIdResponse criaNovaTarefa(TarefaRequest tarefaRequest) {
         log.info("[inicia] TarefaApplicationService - criaNovaTarefa");
-        List<Tarefa> tarefasDoUsuario = tarefaRepository.buscaTarefasDoUsuario(tarefaRequest.getIdUsuario());
-        int novaPosicaoDaTarefa = Tarefa.incrementaPosicaoTarefa(tarefasDoUsuario);
-        Tarefa novaTarefa = new Tarefa(tarefaRequest);
-        novaTarefa.setPosicaoTarefa(novaPosicaoDaTarefa);
+        Integer numeroDeTarefas = tarefaRepository.countTarefaPeloIdUsuario(tarefaRequest.getIdUsuario());
+        Tarefa novaTarefa = new Tarefa(tarefaRequest , numeroDeTarefas);
         tarefaRepository.salva(novaTarefa);
         log.info("[finaliza] TarefaApplicationService - criaNovaTarefa");
         return TarefaIdResponse.builder().idTarefa(novaTarefa.getIdTarefa()).build();
@@ -136,8 +136,12 @@ public class TarefaApplicationService implements TarefaService {
     }
 
     @Override
-    public void usuarioModificaOrdemDaTarefa(String token, UUID idTarefa, int novaPosicao, String usuario) {
+    public void usuarioModificaOrdemDaTarefa(UUID idTarefa, int novaPosicao, String usuario) {
         log.info("[start] TarefaApplicationService - usuarioModificaOrdemDaTarefa");
+        Tarefa tarefa = detalhaTarefa(usuario,idTarefa);
+        List<Tarefa> tarefas = tarefaRepository.buscaTarefasDoUsuario(tarefa.getIdUsuario())
+                .stream().sorted(Comparator.comparingInt(Tarefa::getPosicaoTarefa)).collect(Collectors.toList());
+
         log.info("[finish] TarefaApplicationService - usuarioModificaOrdemDaTarefa");
     }
 }

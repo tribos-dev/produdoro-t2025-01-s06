@@ -6,7 +6,6 @@ import dev.wakandaacademy.produdoro.usuario.domain.StatusUsuario;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
 import lombok.*;
 
-import org.springframework.context.support.DefaultLifecycleProcessor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -20,7 +19,6 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-@Setter
 @Document(collection = "Tarefa")
 public class Tarefa {
     @Id
@@ -38,7 +36,7 @@ public class Tarefa {
     private int contagemPomodoro;
     private int posicaoTarefa;
 
-    public Tarefa(TarefaRequest tarefaRequest) {
+    public Tarefa(TarefaRequest tarefaRequest , Integer numeroDeTarefas) {
         this.idTarefa = UUID.randomUUID();
         this.idUsuario = tarefaRequest.getIdUsuario();
         this.descricao = tarefaRequest.getDescricao();
@@ -47,6 +45,7 @@ public class Tarefa {
         this.status = StatusTarefa.A_FAZER;
         this.statusAtivacao = StatusAtivacaoTarefa.INATIVA;
         this.contagemPomodoro = 1;
+        this.posicaoTarefa = numeroDeTarefas + 1;
     }
 
     public void pertenceAoUsuario(Usuario usuarioPorEmail) {
@@ -100,12 +99,7 @@ public class Tarefa {
 		}
 	}
 
-    public static int incrementaPosicaoTarefa(List<Tarefa> tarefasDoUsuario) {
-        return tarefasDoUsuario.stream()
-                .mapToInt(Tarefa::getPosicaoTarefa)
-                .max()
-                .orElse(0) + 1;
-    }
+
 
 
 }

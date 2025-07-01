@@ -3,16 +3,14 @@ package dev.wakandaacademy.produdoro.tarefa.application.api;
 import dev.wakandaacademy.produdoro.tarefa.domain.StatusAtivacaoTarefa;
 import dev.wakandaacademy.produdoro.tarefa.domain.StatusTarefa;
 import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
-import lombok.Builder;
 import lombok.Data;
-import lombok.Value;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Value
-@Builder
+
+@Data
 public class TarefaDoUsuarioListResponse {
     private UUID idTarefa;
     private String descricao;
