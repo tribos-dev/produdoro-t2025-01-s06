@@ -1,11 +1,12 @@
 package dev.wakandaacademy.produdoro.tarefa.application.service;
 
+import dev.wakandaacademy.produdoro.config.security.service.TokenService;
 import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaDoUsuarioListResponse;
+import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaEditaRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
-import dev.wakandaacademy.produdoro.tarefa.domain.StatusAtivacaoTarefa;
 import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
 import dev.wakandaacademy.produdoro.usuario.application.repository.UsuarioRepository;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
@@ -23,7 +24,7 @@ import java.util.UUID;
 public class TarefaApplicationService implements TarefaService {
     private final TarefaRepository tarefaRepository;
     private final UsuarioRepository usuarioRepository;
-
+    private final TokenService tokenService;
 
     @Override
     public TarefaIdResponse criaNovaTarefa(TarefaRequest tarefaRequest) {
@@ -38,7 +39,8 @@ public class TarefaApplicationService implements TarefaService {
         log.info("[inicia] TarefaApplicationService - detalhaTarefa");
         Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(usuario);
         log.info("[usuarioPorEmail] {}", usuarioPorEmail);
-        Tarefa tarefa = tarefaRepository.buscaTarefaPorId(idTarefa).orElseThrow(() -> APIException.build(HttpStatus.NOT_FOUND, "Tarefa não encontrada!"));
+        Tarefa tarefa =
+                tarefaRepository.buscaTarefaPorId(idTarefa).orElseThrow(() -> APIException.build(HttpStatus.NOT_FOUND, "Tarefa não encontrada!"));
         tarefa.pertenceAoUsuario(usuarioPorEmail);
         log.info("[finaliza] TarefaApplicationService - detalhaTarefa");
         return tarefa;
@@ -61,7 +63,6 @@ public class TarefaApplicationService implements TarefaService {
         if (tarefas.size() >= 2)
             tarefaRepository.deletaTodasAsTarefasDoUsuario(idUsuario);
         log.info("[finaliza] TarefaApplicationService - limparTodasTarefas");
-
     }
 
     @Override
@@ -88,13 +89,48 @@ public class TarefaApplicationService implements TarefaService {
         tarefa.ativaTarefa();
         tarefaRepository.salva(tarefa);
         log.info("[finaliza] TarefaApplicationService - ativaTarefa");
-
-
-
-
-
-
+    }
+    @Override
+    public void deletaTarefasConcluidas(String usuario, UUID idUsuario) {
+        log.info("[inicia] TarefaApplicationService - deletaTarefasConcluidas");
+        Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(usuario);
+        usuarioPorEmail.pertenceAoUsuario(idUsuario);
+        List<Tarefa> tarefasConcluidas = tarefaRepository.buscaTarefasConcluidasPorUsuario(idUsuario);
+        if (tarefasConcluidas.isEmpty())
+            throw APIException.build(HttpStatus.NOT_FOUND, "Usuário não possui nenhuma tarefa concluída!");
+        tarefaRepository.deletaTarefasConcluidas(tarefasConcluidas);
+        log.info("[finaliza] TarefaApplicationService - deletaTarefasConcluidas");
 
     }
 
+    @Override
+    public void editaTarefa(String token, UUID idTarefa, TarefaEditaRequest request) {
+        log.info("[inicia] TarefaApplicationService - editaTarefa");
+        Tarefa tarefa = detalhaTarefa(token, idTarefa);
+        tarefa.editarDescricao(request.getDescricao());
+        tarefaRepository.salva(tarefa);
+        log.info("[finaliza] TarefaApplicationService - editaTarefa");
+    }
+    public void concluiTarefa(String emailPorUsuario, UUID idTarefa) {
+        log.info("[inicia] TarefaApplicationService - concluiTarefa");
+        Usuario usuario = usuarioRepository.buscaUsuarioPorEmail(emailPorUsuario);
+        Tarefa tarefa = detalhaTarefa(emailPorUsuario, idTarefa);
+        tarefa.mudaStatusParaConcluida(usuario);
+        tarefaRepository.salva(tarefa);
+        log.info("[finaliza] TarefaApplicationService - concluiTarefa");
+    }
+
+    @Override
+    public void incrementaPomodoro(String usuario, UUID idTarefa) {
+        log.info("[start] TarefaApplicationService - incrementaPomodoro");
+        Tarefa tarefa = detalhaTarefa(usuario, idTarefa);
+        Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(usuario);
+        tarefa.incrementaPomodoro(usuarioPorEmail, tarefa);
+        tarefa.ativaTarefa();
+        tarefaRepository.salva(tarefa);
+        usuarioRepository.salva(usuarioPorEmail);
+        log.info("[finish] TarefaApplicationService - incrementaPomodoro");
+    }
 }
+
+
