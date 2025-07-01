@@ -26,12 +26,15 @@ public class TarefaApplicationService implements TarefaService {
     private final UsuarioRepository usuarioRepository;
     private final TokenService tokenService;
 
-    @Override
     public TarefaIdResponse criaNovaTarefa(TarefaRequest tarefaRequest) {
         log.info("[inicia] TarefaApplicationService - criaNovaTarefa");
-        Tarefa tarefaCriada = tarefaRepository.salva(new Tarefa(tarefaRequest));
+        List<Tarefa> tarefasDoUsuario = tarefaRepository.buscaTarefasDoUsuario(tarefaRequest.getIdUsuario());
+        int novaPosicaoDaTarefa = Tarefa.incrementaPosicaoTarefa(tarefasDoUsuario);
+        Tarefa novaTarefa = new Tarefa(tarefaRequest);
+        novaTarefa.setPosicaoTarefa(novaPosicaoDaTarefa);
+        tarefaRepository.salva(novaTarefa);
         log.info("[finaliza] TarefaApplicationService - criaNovaTarefa");
-        return TarefaIdResponse.builder().idTarefa(tarefaCriada.getIdTarefa()).build();
+        return TarefaIdResponse.builder().idTarefa(novaTarefa.getIdTarefa()).build();
     }
 
     @Override

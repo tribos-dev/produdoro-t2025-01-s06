@@ -13,12 +13,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpStatus;
 
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 import java.util.UUID;
 
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
+@Setter
 @Document(collection = "Tarefa")
 public class Tarefa {
     @Id
@@ -34,6 +36,7 @@ public class Tarefa {
     private StatusTarefa status;
     private StatusAtivacaoTarefa statusAtivacao;
     private int contagemPomodoro;
+    private int posicaoTarefa;
 
     public Tarefa(TarefaRequest tarefaRequest) {
         this.idTarefa = UUID.randomUUID();
@@ -96,5 +99,13 @@ public class Tarefa {
 			throw APIException.build(HttpStatus.CONFLICT, "O usuario não está em FOCO!");
 		}
 	}
+
+    public static int incrementaPosicaoTarefa(List<Tarefa> tarefasDoUsuario) {
+        return tarefasDoUsuario.stream()
+                .mapToInt(Tarefa::getPosicaoTarefa)
+                .max()
+                .orElse(0) + 1;
+    }
+
 
 }
