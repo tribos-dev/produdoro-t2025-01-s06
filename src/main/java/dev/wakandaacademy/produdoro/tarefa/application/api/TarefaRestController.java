@@ -1,11 +1,5 @@
 package dev.wakandaacademy.produdoro.tarefa.application.api;
 
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RestController;
-
 import dev.wakandaacademy.produdoro.config.security.service.TokenService;
 import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.application.service.TarefaService;
@@ -102,10 +96,19 @@ public class TarefaRestController implements TarefaAPI {
         log.info("[finish] TarefaRestController - patchIncrementaPomodoro");
     }
 
+    @Override
+    public void usuarioModificaOrdemDaTarefa(String token, UUID idTarefa, int novaPosicao) {
+        log.info("[start] TarefaRestController - usuarioModificaOrdemDaTarefa");
+        String usuario = getUsuarioByToken(token);
+        tarefaService.usuarioModificaOrdemDaTarefa(idTarefa, novaPosicao, usuario);
+        log.info("[finish] TarefaRestController - usuarioModificaOrdemDaTarefa");
+    }
+
     private String getUsuarioByToken(String token) {
         log.debug("[token] {}", token);
         String usuario = tokenService.getUsuarioByBearerToken(token).orElseThrow(() -> APIException.build(HttpStatus.UNAUTHORIZED, token));
         log.info("[usuario] {}", usuario);
         return usuario;
     }
+
 }

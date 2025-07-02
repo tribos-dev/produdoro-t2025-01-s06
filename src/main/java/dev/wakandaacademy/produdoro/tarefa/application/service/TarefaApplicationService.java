@@ -15,8 +15,10 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -26,12 +28,13 @@ public class TarefaApplicationService implements TarefaService {
     private final UsuarioRepository usuarioRepository;
     private final TokenService tokenService;
 
-    @Override
     public TarefaIdResponse criaNovaTarefa(TarefaRequest tarefaRequest) {
         log.info("[inicia] TarefaApplicationService - criaNovaTarefa");
-        Tarefa tarefaCriada = tarefaRepository.salva(new Tarefa(tarefaRequest));
+        Integer numeroDeTarefas = tarefaRepository.countTarefaPeloIdUsuario(tarefaRequest.getIdUsuario());
+        Tarefa novaTarefa = new Tarefa(tarefaRequest, numeroDeTarefas);
+        tarefaRepository.salva(novaTarefa);
         log.info("[finaliza] TarefaApplicationService - criaNovaTarefa");
-        return TarefaIdResponse.builder().idTarefa(tarefaCriada.getIdTarefa()).build();
+        return TarefaIdResponse.builder().idTarefa(novaTarefa.getIdTarefa()).build();
     }
 
     @Override
@@ -90,6 +93,7 @@ public class TarefaApplicationService implements TarefaService {
         tarefaRepository.salva(tarefa);
         log.info("[finaliza] TarefaApplicationService - ativaTarefa");
     }
+
     @Override
     public void deletaTarefasConcluidas(String usuario, UUID idUsuario) {
         log.info("[inicia] TarefaApplicationService - deletaTarefasConcluidas");
@@ -99,8 +103,18 @@ public class TarefaApplicationService implements TarefaService {
         if (tarefasConcluidas.isEmpty())
             throw APIException.build(HttpStatus.NOT_FOUND, "Usuário não possui nenhuma tarefa concluída!");
         tarefaRepository.deletaTarefasConcluidas(tarefasConcluidas);
+        reordenaTarefas(usuarioPorEmail.getIdUsuario());
         log.info("[finaliza] TarefaApplicationService - deletaTarefasConcluidas");
 
+    }
+
+    private void reordenaTarefas(UUID idUsuario) {
+        List<Tarefa> tarefas = tarefaRepository.buscaTarefasDoUsuario(idUsuario);
+        for (int i = 0; i < tarefas.size(); i++) {
+            Tarefa tarefa = tarefas.get(i);
+            tarefa.defineNovaPosicao(i + 1);
+        }
+        tarefaRepository.salvarTodasTarefas(tarefas);
     }
 
     @Override
@@ -111,6 +125,7 @@ public class TarefaApplicationService implements TarefaService {
         tarefaRepository.salva(tarefa);
         log.info("[finaliza] TarefaApplicationService - editaTarefa");
     }
+
     public void concluiTarefa(String emailPorUsuario, UUID idTarefa) {
         log.info("[inicia] TarefaApplicationService - concluiTarefa");
         Usuario usuario = usuarioRepository.buscaUsuarioPorEmail(emailPorUsuario);
@@ -131,6 +146,46 @@ public class TarefaApplicationService implements TarefaService {
         usuarioRepository.salva(usuarioPorEmail);
         log.info("[finish] TarefaApplicationService - incrementaPomodoro");
     }
+
+    @Override
+    public void usuarioModificaOrdemDaTarefa(UUID idTarefa, int novaPosicao, String usuario) {
+        log.info("[start] TarefaApplicationService - usuarioModificaOrdemDaTarefa");
+        List<Tarefa> listaDeTarefas = buscaListaDetarefas(usuario);
+        Tarefa tarefaParaMover = buscaTarefaDaLista(idTarefa, listaDeTarefas);
+        int posicaoAtual = tarefaParaMover.getPosicaoTarefa();
+        novaPosicao = Math.max(1, Math.min(novaPosicao, listaDeTarefas.size()));
+        alteraPosicaoDasTarefas(listaDeTarefas, novaPosicao, posicaoAtual);
+        tarefaParaMover.defineNovaPosicao(novaPosicao);
+        tarefaRepository.salvarTodasTarefas(listaDeTarefas);
+        log.info("[finish] TarefaApplicationService - usuarioModificaOrdemDaTarefa");
+    }
+
+    private List<Tarefa> buscaListaDetarefas(String usuario) {
+        Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(usuario);
+        return tarefaRepository.buscaTarefasDoUsuario(usuarioPorEmail.getIdUsuario());
+    }
+
+    private static Tarefa buscaTarefaDaLista(UUID idTarefa, List<Tarefa> listaDeTarefas) {
+        return listaDeTarefas.stream()
+                .filter(tarefa -> tarefa.getIdTarefa().equals(idTarefa))
+                .findFirst()
+                .orElseThrow(() -> APIException.build(HttpStatus.NOT_FOUND, "Id da tarefa inválido"));
+    }
+
+    private void validaNovaPosicaoTarefa(Integer novaPosicao, int posicaoAtual) {
+        if (novaPosicao == posicaoAtual) {
+            throw APIException.build(HttpStatus.CONFLICT, "A nova posição já é a atual");
+        }
+    }
+
+    private void alteraPosicaoDasTarefas(List<Tarefa> tarefasList, Integer novaPosicao, int posicaoAtual) {
+        validaNovaPosicaoTarefa(novaPosicao, posicaoAtual);
+        for (Tarefa tarefa : tarefasList) {
+            int posicao = tarefa.getPosicaoTarefa();
+            if (posicaoAtual < novaPosicao && posicao > posicaoAtual && posicao <= novaPosicao)
+                tarefa.decrementaPosicao(posicao);
+            else if (posicaoAtual > novaPosicao && posicao >= novaPosicao && posicao < posicaoAtual)
+                tarefa.incrementaPosicao(posicao);
+        }
+    }
 }
-
-
