@@ -31,7 +31,7 @@ public class TarefaApplicationService implements TarefaService {
     public TarefaIdResponse criaNovaTarefa(TarefaRequest tarefaRequest) {
         log.info("[inicia] TarefaApplicationService - criaNovaTarefa");
         Integer numeroDeTarefas = tarefaRepository.countTarefaPeloIdUsuario(tarefaRequest.getIdUsuario());
-        Tarefa novaTarefa = new Tarefa(tarefaRequest , numeroDeTarefas);
+        Tarefa novaTarefa = new Tarefa(tarefaRequest, numeroDeTarefas);
         tarefaRepository.salva(novaTarefa);
         log.info("[finaliza] TarefaApplicationService - criaNovaTarefa");
         return TarefaIdResponse.builder().idTarefa(novaTarefa.getIdTarefa()).build();
@@ -93,6 +93,7 @@ public class TarefaApplicationService implements TarefaService {
         tarefaRepository.salva(tarefa);
         log.info("[finaliza] TarefaApplicationService - ativaTarefa");
     }
+
     @Override
     public void deletaTarefasConcluidas(String usuario, UUID idUsuario) {
         log.info("[inicia] TarefaApplicationService - deletaTarefasConcluidas");
@@ -102,8 +103,18 @@ public class TarefaApplicationService implements TarefaService {
         if (tarefasConcluidas.isEmpty())
             throw APIException.build(HttpStatus.NOT_FOUND, "Usuário não possui nenhuma tarefa concluída!");
         tarefaRepository.deletaTarefasConcluidas(tarefasConcluidas);
+        reordenaTarefas(usuarioPorEmail.getIdUsuario());
         log.info("[finaliza] TarefaApplicationService - deletaTarefasConcluidas");
 
+    }
+
+    private void reordenaTarefas(UUID idUsuario) {
+        List<Tarefa> tarefas = tarefaRepository.buscaTarefasDoUsuario(idUsuario);
+        for (int i = 0; i < tarefas.size(); i++) {
+            Tarefa tarefa = tarefas.get(i);
+            tarefa.defineNovaPosicao(i + 1);
+        }
+        tarefaRepository.salvarTodasTarefas(tarefas);
     }
 
     @Override
@@ -114,6 +125,7 @@ public class TarefaApplicationService implements TarefaService {
         tarefaRepository.salva(tarefa);
         log.info("[finaliza] TarefaApplicationService - editaTarefa");
     }
+
     public void concluiTarefa(String emailPorUsuario, UUID idTarefa) {
         log.info("[inicia] TarefaApplicationService - concluiTarefa");
         Usuario usuario = usuarioRepository.buscaUsuarioPorEmail(emailPorUsuario);
