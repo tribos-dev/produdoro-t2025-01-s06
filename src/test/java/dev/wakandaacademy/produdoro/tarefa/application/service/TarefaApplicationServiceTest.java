@@ -265,9 +265,41 @@ class TarefaApplicationServiceTest {
         when(tarefaRepository.buscaTarefaPorId(tarefa.getIdTarefa())).thenReturn(Optional.of(tarefa));
 
         APIException exception = assertThrows(APIException.class, () ->
-                tarefaApplicationService.incrementaPomodoro(usuario.getEmail(), tarefa.getIdTarefa()) );
+                tarefaApplicationService.incrementaPomodoro(usuario.getEmail(), tarefa.getIdTarefa()));
 
         assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusException());
         assertEquals("Usuário não é dono da Tarefa solicitada!", exception.getMessage());
     }
+
+    @Test
+    void deveModificarOrdemDaTarefa() {
+        Usuario usuario = DataHelper.createUsuario();
+        List<Tarefa> listatarefas = DataHelper.createListTarefa();
+        int novaPosicao = 2;
+
+        when(tarefaRepository.buscaTarefasDoUsuario(usuario.getIdUsuario())).thenReturn(listatarefas);
+        when(usuarioRepository.buscaUsuarioPorEmail(usuario.getEmail())).thenReturn(usuario);
+
+        tarefaApplicationService.usuarioModificaOrdemDaTarefa(listatarefas.get(0 ).getIdTarefa(), novaPosicao, usuario.getEmail());
+
+        assertEquals(novaPosicao, listatarefas.get(0).getPosicaoTarefa());
+        verify(tarefaRepository, times(1)).salvarTodasTarefas(listatarefas);
+    }
+
+    @Test
+    void develancarExcecaoModificarOrdemDaTarefa() {
+        Usuario usuario = DataHelper.createUsuario();
+        UUID idRandom = randomUUID();
+        int novaPosicao = 2;
+
+        when(usuarioRepository.buscaUsuarioPorEmail(usuario.getEmail())).thenReturn(usuario);
+
+        APIException exception = assertThrows(APIException.class, () ->
+        tarefaApplicationService.usuarioModificaOrdemDaTarefa(idRandom, novaPosicao, usuario.getEmail()));
+
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusException());
+        assertEquals("Id da tarefa inválido", exception.getMessage());
+    }
+
 }

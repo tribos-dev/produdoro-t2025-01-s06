@@ -48,13 +48,13 @@ public class DataHelper {
     }
 
     public static List<Tarefa> createListTarefa() {
-        return List.of(Tarefa.builder().idTarefa(UUID.randomUUID()).descricao("tarefa 1").idUsuario(usuario1).build(),
+        return List.of(Tarefa.builder().idTarefa(UUID.randomUUID()).descricao("tarefa 1").idUsuario(usuario1).posicaoTarefa(1).build(),
                 Tarefa.builder().build(),
-                Tarefa.builder().idTarefa(UUID.randomUUID()).descricao("tarefa 2").idUsuario(usuario1).build(),
+                Tarefa.builder().idTarefa(UUID.randomUUID()).descricao("tarefa 2").idUsuario(usuario1).posicaoTarefa(2).build(),
                 Tarefa.builder().build(),
-                Tarefa.builder().idTarefa(UUID.randomUUID()).descricao("tarefa 3").idUsuario(usuario1).build(),
+                Tarefa.builder().idTarefa(UUID.randomUUID()).descricao("tarefa 3").idUsuario(usuario1).posicaoTarefa(3).build(),
                 Tarefa.builder().build(),
-                Tarefa.builder().idTarefa(UUID.randomUUID()).descricao("tarefa 4").idUsuario(usuario1).build(),
+                Tarefa.builder().idTarefa(UUID.randomUUID()).descricao("tarefa 4").idUsuario(usuario1).posicaoTarefa(4).build(),
                 Tarefa.builder().build()
 
         );
