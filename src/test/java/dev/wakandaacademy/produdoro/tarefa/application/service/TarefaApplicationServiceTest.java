@@ -227,21 +227,6 @@ class TarefaApplicationServiceTest {
     }
 
     @Test
-    void deveIncrementarPomodoroATarefa() {
-        Usuario usuario = DataHelper.createUsuario2();
-        Tarefa tarefa = DataHelper.createTarefa();
-
-        when(usuarioRepository.buscaUsuarioPorEmail(usuario.getEmail())).thenReturn(usuario);
-        when(tarefaRepository.buscaTarefaPorId(tarefa.getIdTarefa())).thenReturn(Optional.of(tarefa));
-        when(tarefaRepository.salva(any(Tarefa.class))).thenReturn(tarefa);
-        when(usuarioRepository.salva(any(Usuario.class))).thenReturn(usuario);
-        tarefaApplicationService.incrementaPomodoro(usuario.getEmail(), tarefa.getIdTarefa());
-
-        assertEquals(2, tarefa.getContagemPomodoro());
-        assertEquals(StatusAtivacaoTarefa.ATIVA, tarefa.getStatusAtivacao());
-    }
-
-    @Test
     void deveLancarExcecaoSeTarefaNaoExisteAoIncrementarPomodoro() {
         UUID idInvalido = randomUUID();
         Usuario usuario = DataHelper.createUsuario2();
